@@ -56,8 +56,8 @@ public abstract class AbstractJpaCacheIntegrationTest {
                     .withUsername("test")
                     .withPassword("test"),
             "mssql", new MSSQLServerContainer<>(DockerImageName.parse("mcr.microsoft.com/mssql/server:2019-CU15-ubuntu-20.04"))
-                    .withUrlParam("databaseName","mssql")
-                    .withUrlParam("encrypt","false")
+                    .withUrlParam("databaseName", "mssql")
+                    .withUrlParam("encrypt", "false")
                     .acceptLicense()
     );
 
@@ -128,7 +128,7 @@ public abstract class AbstractJpaCacheIntegrationTest {
             HibernateJpaVendorAdapter adapter = new HibernateJpaVendorAdapter();
             emf.setJpaVendorAdapter(adapter);
 
-            Map<String,Object> props = new HashMap<>();
+            Map<String, Object> props = new HashMap<>();
             props.put("hibernate.dialect", resolveHibernateDialect(container));
             props.put("hibernate.show_sql", "true");
             props.put("hibernate.format_sql", "true");
