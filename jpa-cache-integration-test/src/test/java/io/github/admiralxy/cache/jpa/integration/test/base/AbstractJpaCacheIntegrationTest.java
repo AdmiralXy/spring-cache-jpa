@@ -30,11 +30,16 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.transaction.support.TransactionTemplate;
 import org.testcontainers.containers.JdbcDatabaseContainer;
 import org.testcontainers.containers.MSSQLServerContainer;
+import org.testcontainers.containers.MySQLContainer;
 import org.testcontainers.containers.OracleContainer;
 import org.testcontainers.containers.PostgreSQLContainer;
+import org.testcontainers.containers.startupcheck.MinimumDurationRunningStartupCheckStrategy;
+import org.testcontainers.containers.wait.strategy.LogMessageWaitStrategy;
 import org.testcontainers.utility.DockerImageName;
 
 import javax.sql.DataSource;
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -46,6 +51,8 @@ import java.util.Map;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public abstract class AbstractJpaCacheIntegrationTest {
 
+    private static final int CI_CONTAINER_STARTUP_TIME = 90;
+
     private static final Map<String, JdbcDatabaseContainer<?>> CONTAINERS = Map.of(
             "postgres", new PostgreSQLContainer<>(DockerImageName.parse("postgres:15-alpine"))
                     .withDatabaseName("postgres")
@@ -55,16 +62,29 @@ public abstract class AbstractJpaCacheIntegrationTest {
                     .withDatabaseName("oracle")
                     .withUsername("test")
                     .withPassword("test"),
-            "mssql", new MSSQLServerContainer<>(DockerImageName.parse("mcr.microsoft.com/mssql/server:2019-CU15-ubuntu-20.04"))
-                    .withUrlParam("databaseName", "mssql")
-                    .withUrlParam("encrypt", "false")
+            "mssql", new MSSQLServerContainer<>(DockerImageName.parse("mcr.microsoft.com/mssql/server:2019-latest"))
+                    .withEnv("SA_PASSWORD", "Password!")
+                    .withEnv("MSSQL_PID", "Standard")
+                    .withEnv("MSSQL_AGENT_ENABLED", "true")
+                    .withPassword("Password!")
                     .acceptLicense()
+                    .waitingFor(new LogMessageWaitStrategy()
+                            .withRegEx(".*SQL Server is now ready for client connections\\..*\\s")
+                            .withTimes(1)
+                            .withStartupTimeout(Duration.of(CI_CONTAINER_STARTUP_TIME * 3, ChronoUnit.SECONDS)))
+                    .withStartupCheckStrategy(new MinimumDurationRunningStartupCheckStrategy(Duration.ofSeconds(10)))
+                    .withConnectTimeoutSeconds(300),
+            "mysql", new MySQLContainer<>(DockerImageName.parse("mysql:5.7.34"))
+                    .withUsername("mysqluser")
+                    .withPassword("mysqlpw")
+                    .withEnv("MYSQL_ROOT_PASSWORD", "debezium")
     );
 
-    private static final Map<String, String> DIALECTS = Map.of(
-            "postgres", "org.hibernate.dialect.PostgreSQLDialect",
-            "oracle", "org.hibernate.dialect.Oracle10gDialect",
-            "mssql", "org.hibernate.dialect.SQLServerDialect"
+    private static final Map<Class<?>, String> DIALECTS = Map.of(
+            PostgreSQLContainer.class, "org.hibernate.dialect.PostgreSQLDialect",
+            OracleContainer.class,     "org.hibernate.dialect.OracleDialect",
+            MSSQLServerContainer.class,"org.hibernate.dialect.SQLServerDialect",
+            MySQLContainer.class,      "org.hibernate.dialect.MySQLDialect"
     );
 
     private static JdbcDatabaseContainer<?> container;
@@ -144,8 +164,11 @@ public abstract class AbstractJpaCacheIntegrationTest {
         }
 
         private String resolveHibernateDialect(JdbcDatabaseContainer<?> c) {
-            String product = c.getDatabaseName().toLowerCase();
-            return DIALECTS.get(product);
+            String dialect = DIALECTS.get(c.getClass());
+            if (dialect == null) {
+                throw new IllegalStateException("Unexpected container type: " + c.getClass());
+            }
+            return dialect;
         }
 
         @Bean

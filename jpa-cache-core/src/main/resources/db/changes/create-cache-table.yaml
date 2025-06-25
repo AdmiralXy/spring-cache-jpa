@@ -61,3 +61,9 @@ databaseChangeLog:
             indexName: idx_jpa_cache_expiration
             columns:
               - column: { name: c_expires_at }
+
+      modifySql:
+        dbms: mysql
+        replace:
+          replace: "timestamp NOT NULL"
+          with: "datetime NOT NULL"

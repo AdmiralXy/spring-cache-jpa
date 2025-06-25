@@ -1,7 +1,9 @@
 package io.github.admiralxy.cache.jpa.api.entity.entry;
 
+import io.github.admiralxy.cache.jpa.api.entity.converter.InstantTimestampConverter;
 import jakarta.persistence.Basic;
 import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
 import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -43,18 +45,21 @@ public class JpaCacheEntity {
      * Creation time.
      */
     @Column(name = "c_created_at", nullable = false)
+    @Convert(converter = InstantTimestampConverter.class)
     private Instant createdAt;
 
     /**
      * Expiration time.
      */
     @Column(name = "c_expires_at", nullable = false)
+    @Convert(converter = InstantTimestampConverter.class)
     private Instant expiresAt;
 
     /**
      * Last accessed time.
      */
     @Column(name = "c_last_accessed_at", nullable = false)
+    @Convert(converter = InstantTimestampConverter.class)
     private Instant lastAccessedAt;
 
     /**

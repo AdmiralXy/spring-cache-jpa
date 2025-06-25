@@ -39,12 +39,14 @@ dependencies {
     testImplementation("org.testcontainers:postgresql:1.21.1")
     testImplementation("org.testcontainers:oracle-xe:1.21.1")
     testImplementation("org.testcontainers:mssqlserver:1.21.1")
+    testImplementation("org.testcontainers:mysql:1.21.2")
     testImplementation("org.testcontainers:junit-jupiter:1.21.1")
 
     // Database drivers
     testImplementation("org.postgresql:postgresql:42.7.7")
     testImplementation("com.oracle.database.jdbc:ojdbc8:23.8.0.25.04")
     testImplementation("com.microsoft.sqlserver:mssql-jdbc:12.10.0.jre8")
+    testImplementation("com.mysql:mysql-connector-j:9.3.0")
 
     testImplementation("ch.qos.logback:logback-classic:1.4.11")
     testImplementation("ch.qos.logback:logback-core:1.4.11")
@@ -73,6 +75,11 @@ tasks.register<Test>("testMsSql") {
     systemProperty("jdbc.test.db", "mssql")
 }
 
+tasks.register<Test>("testMysql") {
+    useJUnitPlatform()
+    systemProperty("jdbc.test.db", "mysql")
+}
+
 tasks.register("integrationTestAll") {
-    dependsOn("testPostgres", "testOracle", "testMsSql")
+    dependsOn("testPostgres", "testOracle", "testMsSql", "testMysql")
 }

@@ -1,6 +1,8 @@
 package io.github.admiralxy.cache.jpa.api.entity.leader;
 
+import io.github.admiralxy.cache.jpa.api.entity.converter.InstantTimestampConverter;
 import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
@@ -36,5 +38,6 @@ public class JpaCacheLeaderEntity {
      * Leader lease expiration time.
      */
     @Column(name = "c_lease_until")
+    @Convert(converter = InstantTimestampConverter.class)
     private Instant leaseUntil;
 }

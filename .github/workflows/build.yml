@@ -9,9 +9,10 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     strategy:
       matrix:
-        db: [postgres, oracle, mssql]
+        db: [postgres, oracle, mssql, mysql]
     env:
       JDBC_TEST_DB: ${{ matrix.db }}
 
