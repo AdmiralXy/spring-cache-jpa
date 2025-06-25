@@ -83,7 +83,7 @@ public abstract class AbstractJpaCacheIntegrationTest {
     private static final Map<Class<?>, String> DIALECTS = Map.of(
             PostgreSQLContainer.class, "org.hibernate.dialect.PostgreSQLDialect",
             OracleContainer.class,     "org.hibernate.dialect.OracleDialect",
-            MSSQLServerContainer.class,"org.hibernate.dialect.SQLServerDialect",
+            MSSQLServerContainer.class, "org.hibernate.dialect.SQLServerDialect",
             MySQLContainer.class,      "org.hibernate.dialect.MySQLDialect"
     );
 
