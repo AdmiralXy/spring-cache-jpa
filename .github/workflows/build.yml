@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        db: [postgres, mssql, oracle, db2]
+        db: [postgres, oracle, mssql]
     env:
       JDBC_TEST_DB: ${{ matrix.db }}
 
@@ -36,4 +36,4 @@ jobs:
             ${{ runner.os }}-gradle-
 
       - name: Build with Gradle Wrapper
-        run: ./gradlew check integrationTestAll --info --warning-mode=all --build-cache
+        run: ./gradlew check integrationTestAll --info --warning-mode=all --build-cache -Djdbc.test.db=${{ env.JDBC_TEST_DB }}

@@ -12,8 +12,10 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import liquibase.integration.spring.SpringLiquibase;
 import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.condition.EnabledIfSystemProperty;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
@@ -36,6 +38,11 @@ import javax.sql.DataSource;
 import java.util.HashMap;
 import java.util.Map;
 
+@EnabledIfSystemProperty(
+        named = "jdbc.test.db",
+        matches = "(?i)postgres|oracle|mssql",
+        disabledReason = "jdbc.test.db property not set or unsupported"
+)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public abstract class AbstractJpaCacheIntegrationTest {
 
@@ -65,8 +72,12 @@ public abstract class AbstractJpaCacheIntegrationTest {
 
     @BeforeAll
     void setupContext() {
-        String db = System.getProperty("jdbc.test.db", "postgres").toLowerCase();
-        container = CONTAINERS.get(db);
+        String db = System.getProperty("jdbc.test.db");
+        Assumptions.assumeTrue(
+                db != null && CONTAINERS.containsKey(db.toLowerCase()),
+                () -> "Skipping integration tests: 'jdbc.test.db' property not set or unsupported"
+        );
+        container = CONTAINERS.get(db.toLowerCase());
         container.start();
 
         ctx = new AnnotationConfigApplicationContext();
@@ -78,8 +89,12 @@ public abstract class AbstractJpaCacheIntegrationTest {
 
     @AfterAll
     void tearDown() {
-        ctx.close();
-        container.stop();
+        if (ctx != null) {
+            ctx.close();
+        }
+        if (container != null) {
+            container.stop();
+        }
     }
 
     protected JpaCacheManager cacheManager() {

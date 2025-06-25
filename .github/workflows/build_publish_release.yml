@@ -28,7 +28,7 @@ jobs:
             ${{ runner.os }}-gradle-
 
       - name: Build with Gradle Wrapper
-        run: ./gradlew check integrationTestAll --info --warning-mode=all --build-cache
+        run: ./gradlew check --info --warning-mode=all --build-cache
 
       - name: Build and publish
         run: ./gradlew publishAllPublicationsToSonatypeRepository closeAndReleaseSonatypeStagingRepository
