@@ -1,0 +1,5 @@
+databaseChangeLog:
+  - include:
+      file: classpath:/db/changes/create-cache-table.yaml
+  - include:
+      file: classpath:/db/changes/create-cache-leader-table.yaml

@@ -1,0 +1,67 @@
+name: Build and Publish release
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build_publish_release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout project sources
+        uses: actions/checkout@v4
+
+      - name: Setup Gradle
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Cache Gradle packages
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+
+      - name: Build with Gradle Wrapper
+        run: ./gradlew check integrationTestAll --info --warning-mode=all --build-cache
+
+      - name: Build and publish
+        run: ./gradlew publishAllPublicationsToSonatypeRepository closeAndReleaseSonatypeStagingRepository
+        env:
+          OSSRH_USERNAME: ${{ secrets.OSSRH_USERNAME }}
+          OSSRH_PASSWORD: ${{ secrets.OSSRH_PASSWORD }}
+          SIGNING_KEY: ${{ secrets.SIGNING_KEY }}
+          SIGNING_PASSWORD: ${{ secrets.SIGNING_PASSWORD }}
+
+      - name: Increment package version and push
+        id: versioning
+        run: |
+          git fetch origin main
+          git checkout main
+          FILE=gradle.properties
+          VERSION=$(grep 'version=' $FILE | cut -d '=' -f2)
+          NEW_VERSION=$(echo $VERSION | awk -F. -v OFS=. '{$NF++;print}')
+          sed -i "s/version=$VERSION/version=$NEW_VERSION/" $FILE
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "new_version=$NEW_VERSION" >> $GITHUB_OUTPUT
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add $FILE
+          git commit -m "Increment version to $NEW_VERSION"
+          git tag -a "v$VERSION" -m "Release v$VERSION"
+          git push origin main --follow-tags --force-with-lease
+
+      - name: Create GitHub Release
+        uses: actions/create-release@v1
+        with:
+          tag_name: v${{ steps.versioning.outputs.version }}
+          release_name: Release v${{ steps.versioning.outputs.version }}
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

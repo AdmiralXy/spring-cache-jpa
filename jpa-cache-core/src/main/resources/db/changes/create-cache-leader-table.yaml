@@ -1,0 +1,33 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-t-jpa-cache-leader
+      author: admiralxy
+      changes:
+        - createTable:
+            tableName: t_jpa_cache_leader
+            columns:
+              - column:
+                  name: c_id
+                  type: int
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: c_instance_id
+                  type: varchar(64)
+              - column:
+                  name: c_lease_until
+                  type: timestamp
+
+        - insert:
+            tableName: t_jpa_cache_leader
+            columns:
+              - column:
+                  name: c_id
+                  valueNumeric: 1
+              - column:
+                  name: c_instance_id
+                  value: null
+              - column:
+                  name: c_lease_until
+                  valueDate: 1970-01-01T00:00:00
