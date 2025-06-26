@@ -74,7 +74,7 @@ public abstract class AbstractJpaCacheIntegrationTest {
                             .withStartupTimeout(Duration.of(CI_CONTAINER_STARTUP_TIME * 3, ChronoUnit.SECONDS)))
                     .withStartupCheckStrategy(new MinimumDurationRunningStartupCheckStrategy(Duration.ofSeconds(10)))
                     .withConnectTimeoutSeconds(300),
-            "mysql", new MySQLContainer<>(DockerImageName.parse("mysql:5.7.34"))
+            "mysql", new MySQLContainer<>(DockerImageName.parse("mysql:9.3.0"))
                     .withUsername("mysqluser")
                     .withPassword("mysqlpw")
                     .withEnv("MYSQL_ROOT_PASSWORD", "debezium")
