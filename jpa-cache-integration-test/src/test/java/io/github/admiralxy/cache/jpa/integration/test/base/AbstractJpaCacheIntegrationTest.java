@@ -46,7 +46,7 @@ import java.util.Map;
 
 @EnabledIfSystemProperty(
         named = "jdbc.test.db",
-        matches = "(?i)postgres|oracle|mssql",
+        matches = "(?i)postgres|oracle|mssql|mysql",
         disabledReason = "jdbc.test.db property not set or unsupported"
 )
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -83,7 +83,7 @@ public abstract class AbstractJpaCacheIntegrationTest {
                             .withStartupTimeout(Duration.of(CI_CONTAINER_STARTUP_TIME * 3, ChronoUnit.SECONDS)))
                     .withStartupCheckStrategy(new MinimumDurationRunningStartupCheckStrategy(Duration.ofSeconds(10)))
                     .withConnectTimeoutSeconds(300),
-            "mysql", new MySQLContainer<>(DockerImageName.parse("mysql:9.3.0"))
+            "mysql", new MySQLContainer<>(DockerImageName.parse("mysql:8.4"))
                     .withNetwork(NETWORK)
                     .withNetworkAliases("mysql")
                     .withUsername("mysqluser")
