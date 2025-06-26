@@ -30,4 +30,4 @@ databaseChangeLog:
                   value: null
               - column:
                   name: c_lease_until
-                  valueDate: 1970-01-01T00:00:00
+                  valueDate: 1970-01-01T00:00:01

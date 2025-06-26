@@ -107,7 +107,7 @@ public final class LeaderTtlCleaner implements Runnable, AutoCloseable {
     public void close() {
         try {
             txTemplate.execute(status -> {
-                Instant epoch = Instant.EPOCH;
+                Instant epoch = Instant.ofEpochSecond(1);
                 Query q = em.createQuery(JPQL_RELEASE);
                 q.setParameter("epoch", epoch);
                 q.setParameter("instanceId", instanceId);
