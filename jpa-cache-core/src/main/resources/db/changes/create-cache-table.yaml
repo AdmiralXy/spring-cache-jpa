@@ -66,4 +66,4 @@ databaseChangeLog:
         dbms: mysql
         replace:
           replace: "timestamp NOT NULL"
-          with: "datetime NOT NULL"
+          with: "datetime(6) NOT NULL"
