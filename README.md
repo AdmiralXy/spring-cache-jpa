@@ -29,6 +29,14 @@ Stop reinventing the wheel — start shipping features! ⭐
 
 [Configuration on the Wiki](https://github.com/)
 
+## 📦 Tested on
+| Database             | Version |
+|----------------------|---------|
+| PostgreSQL           | 15      |
+| MySQL                | 8.4     |
+| Oracle               | 18 XE   |
+| Microsoft SQL Server | 2019    |
+
 ## 🌍 Roadmap
 * 📊 **Micrometer metrics**
 
