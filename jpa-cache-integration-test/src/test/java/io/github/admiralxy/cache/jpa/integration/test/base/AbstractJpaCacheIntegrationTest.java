@@ -31,6 +31,7 @@ import org.springframework.transaction.support.TransactionTemplate;
 import org.testcontainers.containers.JdbcDatabaseContainer;
 import org.testcontainers.containers.MSSQLServerContainer;
 import org.testcontainers.containers.MySQLContainer;
+import org.testcontainers.containers.Network;
 import org.testcontainers.containers.OracleContainer;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.containers.startupcheck.MinimumDurationRunningStartupCheckStrategy;
@@ -51,18 +52,26 @@ import java.util.Map;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public abstract class AbstractJpaCacheIntegrationTest {
 
+    private static final Network NETWORK = Network.newNetwork();
+
     private static final int CI_CONTAINER_STARTUP_TIME = 90;
 
     private static final Map<String, JdbcDatabaseContainer<?>> CONTAINERS = Map.of(
             "postgres", new PostgreSQLContainer<>(DockerImageName.parse("postgres:15-alpine"))
+                    .withNetwork(NETWORK)
+                    .withNetworkAliases("postgres")
                     .withDatabaseName("postgres")
                     .withUsername("test")
                     .withPassword("test"),
             "oracle", new OracleContainer(DockerImageName.parse("gvenzl/oracle-xe:18-slim"))
+                    .withNetwork(NETWORK)
                     .withDatabaseName("oracle")
                     .withUsername("test")
                     .withPassword("test"),
             "mssql", new MSSQLServerContainer<>(DockerImageName.parse("mcr.microsoft.com/mssql/server:2019-latest"))
+                    .withNetwork(NETWORK)
+                    .withNetworkAliases("oracledb")
+                    .withNetworkAliases("sqlserver")
                     .withEnv("SA_PASSWORD", "Password!")
                     .withEnv("MSSQL_PID", "Standard")
                     .withEnv("MSSQL_AGENT_ENABLED", "true")
@@ -75,6 +84,8 @@ public abstract class AbstractJpaCacheIntegrationTest {
                     .withStartupCheckStrategy(new MinimumDurationRunningStartupCheckStrategy(Duration.ofSeconds(10)))
                     .withConnectTimeoutSeconds(300),
             "mysql", new MySQLContainer<>(DockerImageName.parse("mysql:9.3.0"))
+                    .withNetwork(NETWORK)
+                    .withNetworkAliases("mysql")
                     .withUsername("mysqluser")
                     .withPassword("mysqlpw")
                     .withEnv("MYSQL_ROOT_PASSWORD", "debezium")
