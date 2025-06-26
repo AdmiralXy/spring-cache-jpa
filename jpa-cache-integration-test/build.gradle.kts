@@ -53,6 +53,8 @@ dependencies {
 }
 
 tasks.withType<Test> {
+    systemProperty("jdbc.test.db", System.getProperty("jdbc.test.db"))
+
     useJUnitPlatform()
     testLogging {
         showStandardStreams = true
