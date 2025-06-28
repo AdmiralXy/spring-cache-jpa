@@ -1,0 +1,69 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-t-jpa-cache
+      author: admiralxy
+      changes:
+        - createTable:
+            tableName: t_jpa_cache
+            columns:
+              - column:
+                  name: c_name
+                  type: varchar(64)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: c_key
+                  type: varchar(256)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: c_payload
+                  type: blob
+                  constraints:
+                    nullable: false
+              - column:
+                  name: c_created_at
+                  type: timestamp
+                  constraints:
+                    nullable: false
+              - column:
+                  name: c_expires_at
+                  type: timestamp
+                  constraints:
+                    nullable: false
+              - column:
+                  name: c_last_accessed_at
+                  type: timestamp
+                  constraints:
+                    nullable: false
+              - column:
+                  name: c_hit_count
+                  type: bigint
+                  defaultValueNumeric: 0
+                  constraints:
+                    nullable: false
+            constraints:
+              primaryKey: true
+              primaryKeyName: pk_t_jpa_cache
+              primaryKeyColumns: c_name,c_key
+
+        - createIndex:
+            tableName: t_jpa_cache
+            indexName: idx_jpa_cache_eviction
+            columns:
+              - column: { name: c_name }
+              - column: { name: c_last_accessed_at }
+              - column: { name: c_hit_count }
+              - column: { name: c_created_at }
+
+        - createIndex:
+            tableName: t_jpa_cache
+            indexName: idx_jpa_cache_expiration
+            columns:
+              - column: { name: c_expires_at }
+
+      modifySql:
+        dbms: mysql
+        replace:
+          replace: "timestamp NOT NULL"
+          with: "datetime(6) NOT NULL"
